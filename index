@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rating Drama Sekolah</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Poppins:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    @keyframes sway {
+      0%, 100% { transform: rotate(-3deg); }
+      50% { transform: rotate(3deg); }
+    }
+    @keyframes bloom {
+      0% { transform: scale(0.8); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.9; }
+    }
+    @keyframes petal-fall {
+      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100px) rotate(360deg); opacity: 0; }
+    }
+    .float-animation { animation: float 6s ease-in-out infinite; }
+    .sway-animation { animation: sway 4s ease-in-out infinite; }
+    .bloom-animation { animation: bloom 3s ease-in-out infinite; }
+    .petal-fall { animation: petal-fall 8s linear infinite; }
+    
+    /* Slider Styling - Biru Langit */
+    .rating-slider {
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      background: linear-gradient(to right, #80deea, #4dd0e1, #26c6da, #00bcd4, #0097a7);
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      cursor: pointer;
+    }
+
+    .rating-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00bcd4, #26c6da);
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 188, 212, 0.4);
+      transition: all 0.3s ease;
+      border: 3px solid white;
+    }
+
+    .rating-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 6px 25px rgba(0, 188, 212, 0.6);
+    }
+
+    .rating-slider::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00bcd4, #26c6da);
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 188, 212, 0.4);
+      transition: all 0.3s ease;
+      border: 3px solid white;
+    }
+
+    .rating-slider::-moz-range-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 6px 25px rgba(0, 188, 212, 0.6);
+    }
+
+    .rating-slider::-moz-range-track {
+      background: transparent;
+      border: none;
+    }
+
+    .rating-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #0097a7, #00bcd4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      min-height: 3.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .rating-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #0097a7;
+    }
+
+    .rating-range-label {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: #0097a7;
+      font-weight: 500;
+    }
+    
+    .garden-input {
+      background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(224,244,255,0.9));
+      border: 2px solid rgba(0, 188, 212, 0.3);
+      transition: all 0.3s ease;
+    }
+    .garden-input:focus {
+      border-color: #00bcd4;
+      box-shadow: 0 0 20px rgba(0, 188, 212, 0.2), 0 0 40px rgba(129, 212, 250, 0.3);
+      outline: none;
+    }
+    
+    .submit-btn {
+      background: linear-gradient(135deg, #00bcd4, #26c6da, #4dd0e1);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: rotate(45deg);
+      transition: all 0.6s ease;
+    }
+    .submit-btn:hover::before {
+      left: 100%;
+    }
+    .submit-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(0, 188, 212, 0.4);
+    }
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(224,244,255,0.75));
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    .toast {
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    .toast.show {
+      transform: translateX(0);
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full overflow-auto" style="font-family: 'Poppins', sans-serif;">
+  <!-- Background Garden -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none" style="background: linear-gradient(180deg, #e0f7fa 0%, #b3e5fc 30%, #81d4fa 70%, #b3e5fc 100%);">
+   <!-- Floating Petals -->
+   <div class="absolute top-10 left-10 text-4xl petal-fall" style="animation-delay: 0s;">
+    🌼
+   </div>
+   <div class="absolute top-5 left-1/4 text-3xl petal-fall" style="animation-delay: 2s;">
+    💙
+   </div>
+   <div class="absolute top-0 left-1/2 text-4xl petal-fall" style="animation-delay: 4s;">
+    🌼
+   </div>
+   <div class="absolute top-10 left-3/4 text-3xl petal-fall" style="animation-delay: 1s;">
+    💎
+   </div>
+   <div class="absolute top-5 right-10 text-4xl petal-fall" style="animation-delay: 3s;">
+    🌼
+   </div>
+   <div class="absolute top-0 right-1/4 text-3xl petal-fall" style="animation-delay: 5s;">
+    💙
+   </div><!-- Garden Elements -->
+   <div class="absolute bottom-0 left-0 right-0 h-48">
+    <!-- Grass -->
+    <div class="absolute bottom-0 left-0 right-0 h-20" style="background: linear-gradient(180deg, #c8e6c9, #a5d6a7);"></div><!-- Flowers at bottom -->
+    <div class="absolute bottom-16 left-5 text-6xl sway-animation">
+     💙
+    </div>
+    <div class="absolute bottom-20 left-20 text-5xl sway-animation" style="animation-delay: 0.5s;">
+     🌼
+    </div>
+    <div class="absolute bottom-14 left-36 text-4xl sway-animation" style="animation-delay: 1s;">
+     💎
+    </div>
+    <div class="absolute bottom-18 right-5 text-6xl sway-animation" style="animation-delay: 0.3s;">
+     🌼
+    </div>
+    <div class="absolute bottom-22 right-24 text-5xl sway-animation" style="animation-delay: 0.8s;">
+     💙
+    </div>
+    <div class="absolute bottom-16 right-44 text-4xl sway-animation" style="animation-delay: 1.2s;">
+     💎
+    </div><!-- Butterflies -->
+    <div class="absolute bottom-32 left-1/4 text-3xl float-animation">
+     🦋
+    </div>
+    <div class="absolute bottom-40 right-1/3 text-2xl float-animation" style="animation-delay: 2s;">
+     🦋
+    </div>
+   </div><!-- Corner Decorations -->
+   <div class="absolute top-4 left-4">
+    <div class="text-5xl bloom-animation">
+     🌼
+    </div>
+   </div>
+   <div class="absolute top-4 right-4">
+    <div class="text-5xl bloom-animation" style="animation-delay: 1s;">
+     💙
+    </div>
+   </div>
+   <div class="absolute top-20 left-20 text-3xl bloom-animation" style="animation-delay: 0.5s;">
+    ✨
+   </div>
+   <div class="absolute top-24 right-16 text-3xl bloom-animation" style="animation-delay: 1.5s;">
+    ✨
+   </div>
+  </div><!-- Main Content -->
+  <div class="relative z-10 min-h-full flex items-center justify-center p-4 py-8">
+   <div class="w-full max-w-2xl">
+    <!-- Header -->
+    <div class="text-center mb-8">
+     <div class="inline-block mb-4">
+      <span class="text-6xl">🎭</span>
+     </div>
+     <h1 id="form-title" class="text-4xl md:text-5xl font-bold mb-3" style="font-family: 'Playfair Display', serif; color: #000000;">Rating Drama Sekolah</h1>
+     <p id="subtitle" class="text-lg" style="color: #000000;">✿ Berikan penilaian terbaikmu untuk penampilan drama ✿</p>
+     <div class="flex justify-center gap-2 mt-3">
+      <span class="text-2xl">🌼</span> <span class="text-2xl">💙</span> <span class="text-2xl">💎</span> <span class="text-2xl">💙</span> <span class="text-2xl">🌼</span>
+     </div>
+    </div><!-- Form Card -->
+    <div class="glass-card rounded-3xl p-8 shadow-2xl" style="box-shadow: 0 25px 50px rgba(0,188,212,0.15), 0 0 100px rgba(129,212,250,0.3);">
+     <form id="rating-form">
+      <!-- Judul Drama -->
+      <div class="mb-6">
+       <label class="flex items-center gap-2 text-sm font-semibold mb-2" style="color: #0097a7;"> <span>🎬</span> Judul Drama </label> <input type="text" id="judul-drama" name="JudulDrama" required placeholder="Masukkan judul drama..." class="w-full px-5 py-4 rounded-2xl garden-input text-gray-700">
+      </div><!-- Rating Categories with Sliders -->
+      <div class="space-y-8">
+       <!-- Penguasaan Peran -->
+       <div class="p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(129,212,250,0.2), rgba(255,255,255,0.5));">
+        <div class="rating-label">
+         <span>🎭 Penguasaan Peran Pemain</span> <span class="rating-value" id="value-peran">70</span>
+        </div><input type="range" id="slider-peran" class="rating-slider" min="70" max="100" value="70" data-category="peran">
+        <div class="rating-range-label">
+         <span>70</span> <span>100</span>
+        </div><input type="hidden" name="PenguasaanPeranPemain" id="input-peran" value="70">
+       </div><!-- Ekspresi dan Artikulasi -->
+       <div class="p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(224,244,255,0.5), rgba(129,212,250,0.2));">
+        <div class="rating-label">
+         <span>🎤 Ekspresi dan Artikulasi</span> <span class="rating-value" id="value-ekspresi">70</span>
+        </div><input type="range" id="slider-ekspresi" class="rating-slider" min="70" max="100" value="70" data-category="ekspresi">
+        <div class="rating-range-label">
+         <span>70</span> <span>100</span>
+        </div><input type="hidden" name="EkspresidanArtikulasi" id="input-ekspresi" value="70">
+       </div><!-- Alur Cerita dan Pesan -->
+       <div class="p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(129,212,250,0.2), rgba(255,255,255,0.5));">
+        <div class="rating-label">
+         <span>📖 Alur Cerita dan Pesan</span> <span class="rating-value" id="value-alur">70</span>
+        </div><input type="range" id="slider-alur" class="rating-slider" min="70" max="100" value="70" data-category="alur">
+        <div class="rating-range-label">
+         <span>70</span> <span>100</span>
+        </div><input type="hidden" name="AlurCeritadanPesan" id="input-alur" value="70">
+       </div><!-- Kerja Sama -->
+       <div class="p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(224,244,255,0.5), rgba(129,212,250,0.2));">
+        <div class="rating-label">
+         <span>🤝 Kerja Sama Tim</span> <span class="rating-value" id="value-kerjasama">70</span>
+        </div><input type="range" id="slider-kerjasama" class="rating-slider" min="70" max="100" value="70" data-category="kerjasama">
+        <div class="rating-range-label">
+         <span>70</span> <span>100</span>
+        </div><input type="hidden" name="KerjaSama" id="input-kerjasama" value="70">
+       </div><!-- Penampilan Keseluruhan -->
+       <div class="p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(129,212,250,0.2), rgba(255,255,255,0.5));">
+        <div class="rating-label">
+         <span>⭐ Penampilan Keseluruhan</span> <span class="rating-value" id="value-keseluruhan">70</span>
+        </div><input type="range" id="slider-keseluruhan" class="rating-slider" min="70" max="100" value="70" data-category="keseluruhan">
+        <div class="rating-range-label">
+         <span>70</span> <span>100</span>
+        </div><input type="hidden" name="PenampilanKeseluruhan" id="input-keseluruhan" value="70">
+       </div>
+      </div><!-- Komentar -->
+      <div class="mt-8">
+       <label class="flex items-center gap-2 text-sm font-semibold mb-2" style="color: #0097a7;"> <span>💬</span> Komentar </label> <textarea id="komentar" name="Komentar" rows="4" placeholder="Tulis komentar dan saran untuk penampilan drama..." class="w-full px-5 py-4 rounded-2xl garden-input text-gray-700 resize-none"></textarea>
+      </div><!-- Submit Button -->
+      <div class="mt-8">
+       <button type="submit" id="submit-btn" class="w-full submit-btn text-white font-semibold py-4 px-8 rounded-2xl text-lg flex items-center justify-center gap-3"> <span id="submit-text">💙 Kirim Penilaian 💙</span> <span id="submit-loading" class="hidden flex items-center gap-2">
+         <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+         </svg> Mengirim... </span> </button>
+      </div>
+     </form>
+    </div><!-- Footer -->
+    <div class="text-center mt-6">
+     <p class="text-sm" style="color: #0097a7;">Dibuat dengan 💙 untuk Drama Sekolah</p>
+     <div class="flex justify-center gap-1 mt-2">
+      <span>🌼</span><span>💙</span><span>💎</span><span>💙</span><span>🌼</span>
+     </div>
+    </div>
+   </div>
+  </div><!-- Toast Notification -->
+  <div id="toast" class="toast fixed top-4 right-4 z-50 max-w-sm">
+   <div id="toast-content" class="glass-card rounded-2xl p-4 shadow-xl flex items-center gap-3">
+    <span id="toast-icon" class="text-3xl">🌼</span>
+    <div>
+     <p id="toast-title" class="font-semibold" style="color: #0097a7;">Sukses!</p>
+     <p id="toast-message" class="text-sm" style="color: #0097a7;">Penilaian berhasil dikirim</p>
+    </div>
+   </div>
+  </div>
+  <script>
+    // ============= KONFIGURASI AWAL =============
+    const defaultConfig = {
+      form_title: 'Rating Drama Sekolah',
+      subtitle: '✿ Berikan penilaian terbaikmu untuk penampilan drama ✿',
+      submit_text: '💙 Kirim Penilaian 💙',
+      api_url: 'https://script.google.com/macros/s/AKfycbzxtggj9wxmyWsx0yLKjp3V4Mh8wxJWzOudk4VimIt50njDAxFN1QcLKAWNPzfwUu_Arg/exec',
+      primary_color: '#00bcd4',
+      secondary_color: '#b3e5fc',
+      text_color: '#0097a7',
+      background_color: '#e0f7fa',
+      accent_color: '#0097a7',
+      font_family: 'Poppins',
+      font_size: 16
+    };
+
+    // Simpan config di sini
+    let config = { ...defaultConfig };
+
+    // Rating values storage
+    const ratings = {
+      peran: 70,
+      ekspresi: 70,
+      alur: 70,
+      kerjasama: 70,
+      keseluruhan: 70
+    };
+
+    // ============= FUNGSI UTILITY =============
+
+    /**
+     * Menampilkan notifikasi toast
+     */
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastIcon = document.getElementById('toast-icon');
+      const toastTitle = document.getElementById('toast-title');
+      const toastMessage = document.getElementById('toast-message');
+      
+      if (type === 'success') {
+        toastIcon.textContent = '🌼';
+        toastTitle.textContent = 'Terima Kasih!';
+        toastMessage.textContent = message;
+      } else {
+        toastIcon.textContent = '⚠️';
+        toastTitle.textContent = 'Oops!';
+        toastMessage.textContent = message;
+      }
+      
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    }
+
+    /**
+     * Set status loading tombol submit
+     */
+    function setLoading(isLoading) {
+      const submitBtn = document.getElementById('submit-btn');
+      const submitText = document.getElementById('submit-text');
+      const submitLoading = document.getElementById('submit-loading');
+      
+      submitBtn.disabled = isLoading;
+      
+      if (isLoading) {
+        submitText.classList.add('hidden');
+        submitLoading.classList.remove('hidden');
+      } else {
+        submitText.classList.remove('hidden');
+        submitLoading.classList.add('hidden');
+      }
+    }
+
+    /**
+     * Reset form ke state awal
+     */
+    function resetForm() {
+      document.getElementById('rating-form').reset();
+      
+      const categories = ['peran', 'ekspresi', 'alur', 'kerjasama', 'keseluruhan'];
+      categories.forEach(category => {
+        ratings[category] = 70;
+        document.getElementById(`slider-${category}`).value = 70;
+        document.getElementById(`value-${category}`).textContent = '70';
+        document.getElementById(`input-${category}`).value = 70;
+      });
+    }
+
+    /**
+     * Kirim rating ke Google Apps Script
+     */
+    async function submitRating(formData) {
+      // 1. Ambil URL dari config, gunakan default jika belum diatur
+      const apiUrl = config.api_url || defaultConfig.api_url;
+      
+      // 2. Validasi URL sudah diisi
+      if (!apiUrl) {
+        showToast('URL Google Apps Script belum diatur. Silakan atur di Edit Panel.', 'error');
+        return { success: false };
+      }
+
+      try {
+        // 3. Tampilkan loading state
+        setLoading(true);
+
+        // 4. Kirim data ke Google Apps Script menggunakan fetch POST
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+
+        // 5. Tunggu sebentar untuk memastikan data tersimpan di sheet
+        await new Promise(resolve => setTimeout(resolve, 1200));
+
+        // 6. Asumsikan berhasil jika tidak ada error
+        return { success: true };
+
+      } catch (error) {
+        // 7. Tangkap error jika ada
+        console.error('Error mengirim data:', error);
+        showToast('Gagal mengirim data. Periksa URL Google Apps Script Anda.', 'error');
+        return { success: false };
+
+      } finally {
+        // 8. Matikan loading state
+        setLoading(false);
+      }
+    }
+
+    // ============= INISIALISASI SLIDER SYSTEM =============
+
+    /**
+     * Setup event listener untuk semua slider
+     */
+    function initializeSliders() {
+      document.querySelectorAll('.rating-slider').forEach(slider => {
+        slider.addEventListener('input', function() {
+          const category = this.dataset.category;
+          const value = parseInt(this.value);
+          
+          // 1. Simpan nilai rating
+          ratings[category] = value;
+          document.getElementById(`input-${category}`).value = value;
+          
+          // 2. Update tampilan angka
+          document.getElementById(`value-${category}`).textContent = value;
+        });
+      });
+    }
+
+    // ============= FORM SUBMISSION =============
+
+    /**
+     * Handle form submit
+     */
+    document.getElementById('rating-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // 1. Siapkan data form sesuai format Google Apps Script
+      const formData = {
+        JudulDrama: document.getElementById('judul-drama').value,
+        PenguasaanPeranPemain: ratings.peran,
+        EkspresidanArtikulasi: ratings.ekspresi,
+        AlurCeritadanPesan: ratings.alur,
+        KerjaSama: ratings.kerjasama,
+        PenampilanKeseluruhan: ratings.keseluruhan,
+        Komentar: document.getElementById('komentar').value || '-'
+      };
+      
+      // 2. Kirim data
+      const result = await submitRating(formData);
+      
+      // 3. Jika berhasil, reset form dan tampilkan pesan
+      if (result.success) {
+        showToast('Penilaian drama berhasil dikirim ke spreadsheet! 🎭', 'success');
+        resetForm();
+      }
+    });
+
+    // ============= ELEMENT SDK INTEGRATION =============
+
+    /**
+     * Handle config changes dari Edit Panel
+     */
+    async function onConfigChange(newConfig) {
+      // Update config lokal
+      Object.assign(config, newConfig);
+      
+      // Update text content
+      if (newConfig.form_title) {
+        document.getElementById('form-title').textContent = newConfig.form_title;
+      }
+      if (newConfig.subtitle) {
+        document.getElementById('subtitle').textContent = newConfig.subtitle;
+      }
+      if (newConfig.submit_text) {
+        const submitText = document.getElementById('submit-text');
+        if (!submitText.classList.contains('hidden')) {
+          submitText.textContent = newConfig.submit_text;
+        }
+      }
+      
+      // Update font jika ada
+      if (newConfig.font_family) {
+        document.body.style.fontFamily = `${newConfig.font_family}, sans-serif`;
+      }
+      
+      // Update font size jika ada
+      if (newConfig.font_size) {
+        const baseSize = newConfig.font_size;
+        document.getElementById('form-title').style.fontSize = `${baseSize * 2.5}px`;
+        document.getElementById('subtitle').style.fontSize = `${baseSize * 1.1}px`;
+      }
+    }
+
+    /**
+     * Tentukan warna yang bisa di-edit user
+     */
+    function mapToCapabilities(currentConfig) {
+      return {
+        recolorables: [
+          {
+            get: () => currentConfig.background_color || defaultConfig.background_color,
+            set: (value) => { 
+              config.background_color = value; 
+              window.elementSdk.setConfig({ background_color: value }); 
+            }
+          },
+          {
+            get: () => currentConfig.secondary_color || defaultConfig.secondary_color,
+            set: (value) => { 
+              config.secondary_color = value; 
+              window.elementSdk.setConfig({ secondary_color: value }); 
+            }
+          },
+          {
+            get: () => currentConfig.text_color || defaultConfig.text_color,
+            set: (value) => { 
+              config.text_color = value; 
+              window.elementSdk.setConfig({ text_color: value }); 
+            }
+          },
+          {
+            get: () => currentConfig.primary_color || defaultConfig.primary_color,
+            set: (value) => { 
+              config.primary_color = value; 
+              window.elementSdk.setConfig({ primary_color: value }); 
+            }
+          },
+          {
+            get: () => currentConfig.accent_color || defaultConfig.accent_color,
+            set: (value) => { 
+              config.accent_color = value; 
+              window.elementSdk.setConfig({ accent_color: value }); 
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => currentConfig.font_family || defaultConfig.font_family,
+          set: (value) => { 
+            config.font_family = value; 
+            window.elementSdk.setConfig({ font_family: value }); 
+          }
+        },
+        fontSizeable: {
+          get: () => currentConfig.font_size || defaultConfig.font_size,
+          set: (value) => { 
+            config.font_size = value; 
+            window.elementSdk.setConfig({ font_size: value }); 
+          }
+        }
+      };
+    }
+
+    /**
+     * Map nilai config ke Edit Panel
+     */
+    function mapToEditPanelValues(currentConfig) {
+      return new Map([
+        ['form_title', currentConfig.form_title || defaultConfig.form_title],
+        ['subtitle', currentConfig.subtitle || defaultConfig.subtitle],
+        ['submit_text', currentConfig.submit_text || defaultConfig.submit_text],
+        ['api_url', currentConfig.api_url || defaultConfig.api_url]
+      ]);
+    }
+
+    // ============= STARTUP =============
+
+    // Inisialisasi slider system
+    initializeSliders();
+    
+    // Inisialisasi Element SDK jika tersedia
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cfcfd244625490a',t:'MTc3MTQxMjA5MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
